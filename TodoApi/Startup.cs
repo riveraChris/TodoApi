@@ -23,7 +23,17 @@ namespace TodoApi
         {
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(GetConnectionString());
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("defaultPolicy",
+                    builder =>
+                    {
+                        builder.WithOrigins("https://todosblazor.azurewebsites.net");
+                    });
+            });
+
             services.AddDbContext<TodoContext>(opt => opt.UseSqlServer(builder.ConnectionString));
+
             services.AddControllers();
         }
 

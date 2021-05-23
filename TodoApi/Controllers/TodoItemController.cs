@@ -10,6 +10,7 @@ using TodoApi.Models;
 
 namespace TodoApi.Controllers
 {
+    [EnableCors("defaultPolicy")]
     [Route("api/[controller]")]
     [ApiController]
     public class TodoItemController : ControllerBase
@@ -21,15 +22,21 @@ namespace TodoApi.Controllers
             _context = context;
         }
 
-        // GET: api/TodoItem
         [HttpGet]
-        [EnableCors("Policy")]
         public async Task<ActionResult<IEnumerable<TodoItems>>> GetTodoItems()
         {
             return await _context.Todos.ToListAsync();
         }
 
-        // GET: api/TodoItem/5
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<ActionResult<IEnumerable<TodoItems>>> FilterTodoItems([FromBody] TodoItems item)
+        {
+            return await _context.Todos
+                .Where(t => t.Name.Contains(item.Name) && t.IsComplete == item.IsComplete)
+                .ToListAsync<TodoItems>();
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<TodoItems>> GetTodoItem(long id)
         {
@@ -43,7 +50,6 @@ namespace TodoApi.Controllers
             return todoItem;
         }
 
-        // PUT: api/TodoItem/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTodoItem(long id, TodoItems todoItem)
         {
@@ -73,8 +79,6 @@ namespace TodoApi.Controllers
             return NoContent();
         }
 
-        // POST: api/TodoItem
-        // POST: api/TodoItems
         [HttpPost]
         public async Task<ActionResult<TodoItems>> PostTodoItem(TodoItems todoItem)
         {
@@ -85,7 +89,6 @@ namespace TodoApi.Controllers
             return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, todoItem);
         }
 
-        // DELETE: api/TodoItem/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTodoItem(long id)
         {
